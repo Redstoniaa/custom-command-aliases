@@ -2,6 +2,7 @@ package aliases;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.tree.CommandNode;
@@ -15,17 +16,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
+import static com.mojang.brigadier.builder.LiteralArgumentBuilder.*;
 
 public class AliasesMod implements ModInitializer {
 	public static final String MOD_ID = "custom-command-aliases";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("%s.json".formatted(MOD_ID));
+	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	public static List<AliasDeclaration> aliases;
 
 	@Override
@@ -49,14 +55,28 @@ public class AliasesMod implements ModInitializer {
 	}
 
 	public static void loadConfig() {
-		Path path = FabricLoader.getInstance().getConfigDir().resolve("%s.json".formatted(MOD_ID));
 		try {
-			if (Files.exists(path)) {
-				final BufferedReader reader = Files.newBufferedReader(path);
-				Type type = new TypeToken<List<AliasDeclaration>>(){}.getType();
-				aliases = new Gson().fromJson(reader, type);
-				reader.close();
-			}
+			if (!Files.exists(CONFIG_PATH))
+				createConfig();
+			final BufferedReader reader = Files.newBufferedReader(CONFIG_PATH);
+			Type type = new TypeToken<List<AliasDeclaration>>() {}.getType();
+			aliases = GSON.fromJson(reader, type);
+			reader.close();
+		} catch (IOException ignore) {}
+	}
+
+	public static void createConfig() {
+		final List<AliasDeclaration> exampleDeclaration = List.of(
+				new AliasDeclaration("fill", "fillbetterplease", "toothfillings"),
+				new AliasDeclaration("setblock", "putblockinthisposition"));
+		try {
+			Files.createDirectories(CONFIG_PATH);
+			Files.deleteIfExists(CONFIG_PATH);
+
+			final BufferedWriter writer = Files.newBufferedWriter(CONFIG_PATH, StandardOpenOption.CREATE);
+
+			GSON.toJson(exampleDeclaration, writer);
+			writer.close();
 		} catch (IOException ignore) {}
 	}
 }
