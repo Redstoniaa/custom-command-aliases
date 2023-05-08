@@ -16,12 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.*;
@@ -55,27 +53,24 @@ public class AliasesMod implements ModInitializer {
 
 	public static void loadConfig() {
 		try {
-			if (!Files.exists(CONFIG_PATH))
-				createConfig();
-			final BufferedReader reader = Files.newBufferedReader(CONFIG_PATH);
-			Type type = new TypeToken<List<AliasDeclaration>>() {}.getType();
-			aliases = GSON.fromJson(reader, type);
-			reader.close();
+			if (Files.exists(CONFIG_PATH)) {
+				final BufferedReader reader = Files.newBufferedReader(CONFIG_PATH);
+				Type type = new TypeToken<List<AliasDeclaration>>(){}.getType();
+				aliases = GSON.fromJson(reader, type);
+				reader.close();
+			}
 		} catch (IOException ignore) {}
 	}
 
-	public static void createConfig() {
-		final List<AliasDeclaration> exampleDeclaration = List.of(
-				new AliasDeclaration("fill", "fillbetterplease", "toothfillings"),
-				new AliasDeclaration("setblock", "putblockinthisposition"));
-		try {
-			Files.createDirectories(CONFIG_PATH);
-			Files.deleteIfExists(CONFIG_PATH);
-
-			final BufferedWriter writer = Files.newBufferedWriter(CONFIG_PATH, StandardOpenOption.CREATE);
-
-			GSON.toJson(exampleDeclaration, writer);
-			writer.close();
-		} catch (IOException ignore) {}
-	}
+//	public static void createEmptyConfig() {
+//		final List<AliasDeclaration> emptyAliasList = new ArrayList<>();
+//		try {
+//			Files.createDirectories(CONFIG_PATH);
+//			Files.deleteIfExists(CONFIG_PATH);
+//
+//			final BufferedWriter writer = Files.newBufferedWriter(CONFIG_PATH, StandardOpenOption.CREATE);
+//			GSON.toJson(emptyAliasList, writer);
+//			writer.close();
+//		} catch (IOException ignore) {}
+//	}
 }
