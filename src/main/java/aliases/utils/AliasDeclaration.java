@@ -1,4 +1,4 @@
-package aliases;
+package aliases.utils;
 
 public class AliasDeclaration {
     public AliasDeclaration(String command, String... aliases) {

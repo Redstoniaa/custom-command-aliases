@@ -1,6 +1,5 @@
-package aliases;
+package aliases.utils;
 
-import aliases.AliasDeclaration;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,6 +10,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 import static aliases.AliasesMod.*;
@@ -18,7 +18,7 @@ import static aliases.AliasesMod.*;
 public class Config {
     private static final Path CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("%s.json".formatted(MOD_ID));
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    public static List<AliasDeclaration> aliases;
+    public static List<AliasDeclaration> aliases = new ArrayList<>();
 
     public static void load() {
         try {

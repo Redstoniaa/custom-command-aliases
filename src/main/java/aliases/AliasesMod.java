@@ -1,6 +1,8 @@
 package aliases;
 
+import aliases.command.CustomAliasCommand;
 import aliases.command.RegisterAliasCommands;
+import aliases.utils.Config;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -18,10 +20,11 @@ public class AliasesMod implements ModInitializer {
 	public void onInitialize() {
 		//LOGGER.info("Hello Fabric world!");
 		Config.load();
-		CommandRegistrationCallback.EVENT.register(this::registerAliases);
+		CommandRegistrationCallback.EVENT.register(this::registerCommands);
 	}
 
-	public void registerAliases(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, RegistrationEnvironment environment) {
-		RegisterAliasCommands.registerAliases(dispatcher);
+	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess, RegistrationEnvironment environment) {
+		RegisterAliasCommands.register(dispatcher);
+		CustomAliasCommand.register(dispatcher);
 	}
 }
