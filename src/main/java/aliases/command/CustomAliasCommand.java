@@ -9,8 +9,11 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
@@ -35,13 +38,21 @@ public class CustomAliasCommand {
         String alias = getString(context, ALIAS_NAME);
 
         assert getActiveDispatcher() != null;
-        boolean success = RegisterAlias.registerAliases(getActiveDispatcher(), command, alias);
-        if (!success)
-            throw new SimpleCommandExceptionType(Text.literal("Command /%s does not exist.".formatted(command))).create();
-//        RegisterAlias.updateCommandTrees(server);
+        CommandNode<ServerCommandSource> node = Objects.requireNonNull(context.getSource().getPlayer().getServer()).getCommandManager().getDispatcher().getRoot().getChild(command);
+        if (node == null)
+            return 1;
+        getActiveDispatcher().register(literal(alias).redirect(node, c -> {
+            return (FabricClientCommandSource) c.getSource();
+        });
 
-        source.sendFeedback(Text.literal("registered thingy"));
-        return 1;
+        //
+
+//        if (false)
+//            throw new SimpleCommandExceptionType(Text.literal("Command /%s does not exist.".formatted(command))).create();
+////        RegisterAlias.updateCommandTrees(server);
+//
+//        source.sendFeedback(Text.literal("registered thingy"));
+//        return 1;
     }
 
     private static CompletableFuture<Suggestions> suggestCommands(CommandContext<FabricClientCommandSource> context, SuggestionsBuilder builder) {
