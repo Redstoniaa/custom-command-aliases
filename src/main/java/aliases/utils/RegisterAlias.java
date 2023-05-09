@@ -2,18 +2,19 @@ package aliases.utils;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.tree.CommandNode;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
+
 import java.util.List;
 
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class RegisterAlias {
     //find better class name
-    public static boolean registerAliases(CommandDispatcher<ServerCommandSource> dispatcher, String command, String... aliases) {
-        CommandNode<ServerCommandSource> commandNode = dispatcher.getRoot().getChild(command);
+    public static boolean registerAliases(CommandDispatcher<FabricClientCommandSource> dispatcher, String command, String... aliases) {
+        CommandNode<FabricClientCommandSource> commandNode = dispatcher.getRoot().getChild(command);
         if (commandNode == null)
             return false;
 
